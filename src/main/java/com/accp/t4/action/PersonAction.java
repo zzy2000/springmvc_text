@@ -39,6 +39,7 @@ public class PersonAction {
 
 	@DeleteMapping("person/{pid}")
 	public Map<String, String> delPersonInfo(@PathVariable Integer pid) {
+		System.out.println("第二次修改");
 		Map<String, String> message = new HashMap<String, String>();
 		personBiz.removePersonById(pid);
 		message.put("code", "200");
