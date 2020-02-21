@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.accp.t4.dao.IPersonDao">
+
+	<select id="queryPerson" resultType="person">
+		SELECT * FROM
+		tbl_person
+	</select>
+
+	<!-- 主详读取 -->
+	<resultMap type="person" id="personMap">
+		<id property="pid" column="pid" />
+		<result property="pname" column="pname" />
+		<result property="psex" column="psex" />
+		<result property="pdate" column="pdate" />
+		<collection property="addresses" column="pid"
+			select="queryAddress" />
+	</resultMap>
+	<select id="queryAddress" resultType="address">
+		select * from tbl_address
+		where aid=#{0}
+	</select>
+	<select id="loadPerson" resultMap="personMap">
+		SELECT * FROM
+		tbl_person
+		where
+		pid=#{pid}
+	</select>
+
+	<!-- 主详删除 -->
+	<delete id="deletePerson">
+		delete from tbl_address where aid=#{pid};
+		delete from
+		tbl_person where pid=#{pid};
+	</delete>
+
+	<!-- 主详新增 -->
+	<insert id="savePerson">
+		insert into tbl_person(pid,pname,psex,pdate)
+		values(#{person.pid},#{person.pname},#{person.psex},#{person.pdate,jdbcType=DATE});
+		<if test="person.addresses.size()!=0">
+			insert into tbl_address(aname,atel,aid) values
+			<foreach collection="person.addresses" item="temp"
+				separator=",">
+				(#{temp.aname},#{temp.atel},#{person.pid})
+			</foreach>
+			;
+		</if>
+	</insert>
+	
+	<update id="updatePerson">
+		update tbl_person
+		<set>
+			<if test="person.pname!=null">
+				pname=#{person.pname},
+			</if>
+			<if test="person.psex!=null">
+				psex=#{person.psex},
+			</if>
+			<if test="person.pdate!=null">
+				pdate=#{person.pdate,jdbcType=DATE},
+			</if>
+			<if test="person.pimg!=null">
+				pimg=#{person.pimg},
+			</if>
+		</set>
+		where pid=#{person.pid}
+	</update>
+
+</mapper>
